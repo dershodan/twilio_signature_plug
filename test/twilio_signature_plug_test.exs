@@ -12,11 +12,14 @@ defmodule TwilioSignaturePlugTest do
     def call(conn, :not_authenticated) do
       conn
       |> Conn.put_status(401)
+
       # |> json(%{error: %{code: 401, message: "Not authenticated"}})
     end
+
     def call(conn, :bad_request) do
       conn
       |> Conn.put_status(400)
+
       # |> json(%{error: %{code: 400, message: "Bad Request"}})
     end
   end
@@ -123,101 +126,131 @@ defmodule TwilioSignaturePlugTest do
   end
 
   test "valid request and signature", context do
-    conn = context[:conn]
-    |> TwilioSignaturePlug.call(TestTwilioSignatureErrorHandler)
+    conn =
+      context[:conn]
+      |> TwilioSignaturePlug.call(TestTwilioSignatureErrorHandler)
+
     refute conn.halted
   end
 
   test "invalid signature", context do
-    conn = %{context[:conn] | req_headers: [
-      {"accept-encoding", "gzip"},
-      {"content-length", "425"},
-      {"content-type", "application/x-www-form-urlencoded; charset=UTF-8"},
-      {"host", "host@example.org"},
-      {"i-twilio-idempotency-token", "7a838604-9676-4cc7-8561-f3ecf62c6f55"},
-      {"user-agent", "TwilioProxy/1.1"},
-      {"x-forwarded-for", "54.172.179.110"},
-      {"x-forwarded-proto", "https"},
-      {"x-twilio-signature", "incorrect_signature"}
-    ]} |> TwilioSignaturePlug.call(TestTwilioSignatureErrorHandler)
+    conn =
+      %{
+        context[:conn]
+        | req_headers: [
+            {"accept-encoding", "gzip"},
+            {"content-length", "425"},
+            {"content-type", "application/x-www-form-urlencoded; charset=UTF-8"},
+            {"host", "host@example.org"},
+            {"i-twilio-idempotency-token", "7a838604-9676-4cc7-8561-f3ecf62c6f55"},
+            {"user-agent", "TwilioProxy/1.1"},
+            {"x-forwarded-for", "54.172.179.110"},
+            {"x-forwarded-proto", "https"},
+            {"x-twilio-signature", "incorrect_signature"}
+          ]
+      }
+      |> TwilioSignaturePlug.call(TestTwilioSignatureErrorHandler)
+
     assert conn.status == 401
     assert conn.halted
   end
 
   test "changed path", context do
-    conn = %{context[:conn] | request_path: "/api/v1/callWRONG"}
-    |> TwilioSignaturePlug.call(TestTwilioSignatureErrorHandler)
+    conn =
+      %{context[:conn] | request_path: "/api/v1/callWRONG"}
+      |> TwilioSignaturePlug.call(TestTwilioSignatureErrorHandler)
+
     assert conn.status == 401
     assert conn.halted
   end
 
   test "changed query string", context do
-    conn = %{context[:conn] | query_string: "?CHANGE=WRONG"}
-    |> TwilioSignaturePlug.call(TestTwilioSignatureErrorHandler)
+    conn =
+      %{context[:conn] | query_string: "?CHANGE=WRONG"}
+      |> TwilioSignaturePlug.call(TestTwilioSignatureErrorHandler)
+
     assert conn.status == 401
     assert conn.halted
   end
 
   test "changed body params", context do
-    conn = %{context[:conn] | body_params: %{
-      "AccountSid" => "AC580a2a2f18195ba92095bd3c23416477",
-      "ApiVersion" => "2010-04-01",
-      "Some" => "CHANGES",
-      "FromCountry" => "US",
-      "FromState" => "",
-      "ToCity" => "",
-      "ToCountry" => "US",
-      "ToState" => "LA",
-      "ToZip" => ""
-    }} |> TwilioSignaturePlug.call(TestTwilioSignatureErrorHandler)
+    conn =
+      %{
+        context[:conn]
+        | body_params: %{
+            "AccountSid" => "AC580a2a2f18195ba92095bd3c23416477",
+            "ApiVersion" => "2010-04-01",
+            "Some" => "CHANGES",
+            "FromCountry" => "US",
+            "FromState" => "",
+            "ToCity" => "",
+            "ToCountry" => "US",
+            "ToState" => "LA",
+            "ToZip" => ""
+          }
+      }
+      |> TwilioSignaturePlug.call(TestTwilioSignatureErrorHandler)
+
     assert conn.status == 401
     assert conn.halted
   end
 
   test "changing body params order doesnt matter", context do
-    conn = %{context[:conn] | body_params: %{
-      "CalledZip" => "",
-      "Caller" => "+1123456789",
-      "CallerCity" => "",
-      "CallerCountry" => "US",
-      "FromZip" => "",
-      "AccountSid" => "AC580a2a2f18195ba92095bd3c23416477",
-      "To" => "+1987654321",
-      "CallerState" => "",
-      "CallerZip" => "",
-      "CallStatus" => "ringing",
-      "ApiVersion" => "2010-04-01",
-      "FromCountry" => "US",
-      "FromState" => "",
-      "CallSid" => "CA919c110287326021105be625cb181824",
-      "ToCountry" => "US",
-      "CalledState" => "LA",
-      "Called" => "+1987654321",
-      "CalledCity" => "",
-      "From" => "+1123456789",
-      "FromCity" => "",
-      "ToCity" => "",
-      "ToState" => "LA",
-      "ToZip" => "",
-      "CalledCountry" => "US",
-      "Direction" => "inbound",
-    }} |> TwilioSignaturePlug.call(TestTwilioSignatureErrorHandler)
+    conn =
+      %{
+        context[:conn]
+        | body_params: %{
+            "CalledZip" => "",
+            "Caller" => "+1123456789",
+            "CallerCity" => "",
+            "CallerCountry" => "US",
+            "FromZip" => "",
+            "AccountSid" => "AC580a2a2f18195ba92095bd3c23416477",
+            "To" => "+1987654321",
+            "CallerState" => "",
+            "CallerZip" => "",
+            "CallStatus" => "ringing",
+            "ApiVersion" => "2010-04-01",
+            "FromCountry" => "US",
+            "FromState" => "",
+            "CallSid" => "CA919c110287326021105be625cb181824",
+            "ToCountry" => "US",
+            "CalledState" => "LA",
+            "Called" => "+1987654321",
+            "CalledCity" => "",
+            "From" => "+1123456789",
+            "FromCity" => "",
+            "ToCity" => "",
+            "ToState" => "LA",
+            "ToZip" => "",
+            "CalledCountry" => "US",
+            "Direction" => "inbound"
+          }
+      }
+      |> TwilioSignaturePlug.call(TestTwilioSignatureErrorHandler)
+
     # order of the body_params doesn't matter
     refute conn.halted
   end
 
   test "twilio signature missing", context do
-    conn = %{context[:conn] | req_headers: [
-      {"accept-encoding", "gzip"},
-      {"content-length", "425"},
-      {"content-type", "application/x-www-form-urlencoded; charset=UTF-8"},
-      {"host", "host@example.org"},
-      {"i-twilio-idempotency-token", "7a838604-9676-4cc7-8561-f3ecf62c6f55"},
-      {"user-agent", "TwilioProxy/1.1"},
-      {"x-forwarded-for", "54.172.179.110"},
-      {"x-forwarded-proto", "https"},
-      # {"x-twilio-signature", "incorrect_signature"} Twilio  signature missing
-    ]} |> TwilioSignaturePlug.call(TestTwilioSignatureErrorHandler)
+    conn =
+      %{
+        context[:conn]
+        | req_headers: [
+            {"accept-encoding", "gzip"},
+            {"content-length", "425"},
+            {"content-type", "application/x-www-form-urlencoded; charset=UTF-8"},
+            {"host", "host@example.org"},
+            {"i-twilio-idempotency-token", "7a838604-9676-4cc7-8561-f3ecf62c6f55"},
+            {"user-agent", "TwilioProxy/1.1"},
+            {"x-forwarded-for", "54.172.179.110"},
+            {"x-forwarded-proto", "https"}
+            # {"x-twilio-signature", "incorrect_signature"} Twilio  signature missing
+          ]
+      }
+      |> TwilioSignaturePlug.call(TestTwilioSignatureErrorHandler)
+
     assert conn.status == 400
     assert conn.halted
   end
