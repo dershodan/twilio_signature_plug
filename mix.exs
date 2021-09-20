@@ -1,6 +1,9 @@
 defmodule TwilioSignaturePlug.MixProject do
   use Mix.Project
 
+  @maintainers ["Christoph Leitner"]
+  @url "https://github.com/dershodan/twilio_signature_plug"
+
   def project do
     [
       app: :twilio_signature_plug,
@@ -8,7 +11,8 @@ defmodule TwilioSignaturePlug.MixProject do
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       description: description(),
-      deps: deps()
+      deps: deps(),
+      package: package()
     ]
   end
 
@@ -32,5 +36,13 @@ defmodule TwilioSignaturePlug.MixProject do
     """
     Validate Twilio Request Signatures on your Webhooks
     """
+  end
+
+  defp package() do
+    [
+      maintainers: @maintainers,
+      licenses: ["MIT"],
+      links: %{"GitHub" => @url}
+    ]
   end
 end
