@@ -4,7 +4,7 @@ This is a Plug that verifies authenticity of Twilio requests
 
 It is intended to be used in pipelines in the routes.ex of your Phoenix app
 
-# Installation
+## Installation
 
 add twilio_signature_plug to your mix.exs deps
 
@@ -27,7 +27,7 @@ config :twilio_signature_plug,
   auth_token: System.get_env() |> Map.get("TWILIO_AUTH_TOKEN", "i am required")
 ```
 
-# Example Use
+## Example Usage
 
 add the signature validation Plug to your Twilio Webhook pipeline like in this example:
 
@@ -59,3 +59,7 @@ defmodule YourAppWeb.TwilioSignatureErrorHandler do
   end
 end
 ```
+
+## License
+
+[MIT](./LICENSE)
