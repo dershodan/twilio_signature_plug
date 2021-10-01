@@ -33,10 +33,12 @@ defmodule TwilioSignaturePlug do
 
   defp maybe_halt(:ok, conn, _handler), do: conn
 
-  def check_signature(conn) do
-    # generating a signature from the conn object and compare it to the twilio signature set in the headers
-    # twilio signatures are created from the full URI including all get and post parameters
-    # see https://www.twilio.com/docs/usage/security#validating-requests for details
+  @doc """
+  Generates a signature from the conn object
+  twilio signatures are created from the full URI including all get and post parameters
+  see https://www.twilio.com/docs/usage/security#validating-requests for details
+  """
+  def expected_signature(conn) do
     uri = conn |> generate_uri
     post_param_string = conn |> generate_undelimited_post_params
     complete_signed_string = "#{uri}#{post_param_string}"
@@ -49,14 +51,19 @@ defmodule TwilioSignaturePlug do
         complete_signed_string
       )
       |> Base.encode64()
+    calculated_signature
+  end
 
+  @doc """
+  Compares expected signature to the twilio signature set in the headers
+  """
+  def check_signature(conn) do
     # is the signature correct?
     case find_twilio_signature(conn.req_headers) do
       {:ok, signature} ->
-        case calculated_signature == signature do
+        case expected_signature(conn) == signature do
           true ->
             :ok
-
           false ->
             :mismatch
         end
@@ -99,8 +106,8 @@ defmodule TwilioSignaturePlug do
     end
   end
 
-  defp find_twilio_signature(list) do
-    case list do
+  defp find_twilio_signature(headers) do
+    case headers do
       [{"x-twilio-signature", signature} | _] ->
         {:ok, signature}
 
