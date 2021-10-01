@@ -7,7 +7,9 @@ defmodule TwilioSignaturePlug do
     case Keyword.get(config, :error_handler, :not_found) do
       :not_found ->
         raise "No :error_handler configuration option provided. It's required to set this when using #{inspect(__MODULE__)}."
-      value -> value
+
+      value ->
+        value
     end
   end
 
@@ -51,6 +53,7 @@ defmodule TwilioSignaturePlug do
         complete_signed_string
       )
       |> Base.encode64()
+
     calculated_signature
   end
 
@@ -64,6 +67,7 @@ defmodule TwilioSignaturePlug do
         case expected_signature(conn) == signature do
           true ->
             :ok
+
           false ->
             :mismatch
         end

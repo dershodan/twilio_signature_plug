@@ -5,10 +5,12 @@ defmodule TwilioSignaturePlug.TwilioTestHelper do
   """
   def sign_conn(%{} = conn) do
     signature = TwilioSignaturePlug.expected_signature(conn)
+
     case conn do
       %{:req_headers => headers} ->
         # update the headers
-        %{conn | "req_headers": set_twilio_signature_header(headers, signature)}
+        %{conn | req_headers: set_twilio_signature_header(headers, signature)}
+
       _ ->
         # if no headers were set, we create them
         %{conn | req_headers: [{"x-twilio-signature", signature}]}
@@ -16,11 +18,15 @@ defmodule TwilioSignaturePlug.TwilioTestHelper do
   end
 
   defp set_twilio_signature_header(headers, signature) do
-    [{"x-twilio-signature", signature} | headers |> Enum.filter(fn x ->
-      case x do
-        {"x-twilio-signature", _} -> false
-        {_, _} -> true
-      end
-    end)]
+    [
+      {"x-twilio-signature", signature}
+      | headers
+        |> Enum.filter(fn x ->
+          case x do
+            {"x-twilio-signature", _} -> false
+            {_, _} -> true
+          end
+        end)
+    ]
   end
 end
