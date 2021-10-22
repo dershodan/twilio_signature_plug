@@ -89,7 +89,9 @@ defmodule TwilioSignaturePlug do
       "" ->
         # if the query string is empty, just return the base_uri
         base_uri
-
+      nil ->
+        # if the query string is empty, just return the base_uri
+        base_uri
       _ ->
         # otherwise add the query string
         "#{base_uri}?#{conn.query_string}"

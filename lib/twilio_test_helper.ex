@@ -1,6 +1,6 @@
 defmodule TwilioSignaturePlug.TwilioTestHelper do
   @doc """
-  Set the rquired twilio signature header in a Conn object
+  Set the rquired twilio signature header in a Conn object.
   This is designed for testing requests to twilio-signature-plug protected routes.
   """
   def sign_conn(%{} = conn) do

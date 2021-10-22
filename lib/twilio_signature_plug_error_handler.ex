@@ -9,8 +9,7 @@ defmodule TwilioSignaturePlugErrorHandler do
 
   See the README for more info
   """
-
-  import Plug.Conn
+  alias Plug.Conn
 
   def call(conn, :not_authenticated) do
     conn

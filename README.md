@@ -12,15 +12,13 @@ add twilio_signature_plug to your mix.exs deps
 defp deps do
   [
     ...
-    {:twilio_signature_plug, "~> 0.1"},
-    # {:dep_from_hexpm, "~> 0.3.0"},
-    # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+    {:twilio_signature_plug, "~> 0.1.4"},
     ...
   ]
 end
 ```
 
-Add your twilio **auth_token** to your `config.exs` (e.g. from the environment as examplified here)
+Add your Twilio **auth_token** to your `config.exs` (e.g. from the environment as exemplified here)
 
 ```
 config :twilio_signature_plug,
