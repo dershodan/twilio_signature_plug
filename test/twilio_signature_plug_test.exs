@@ -29,7 +29,7 @@ defmodule TwilioSignaturePlugTest do
     Application.put_env(:twilio_signature_plug, :auth_token, "d0fddb8939d228ed08f01b8636bf80fd")
 
     conn = %Plug.Conn{
-      assigns: %{current_user: nil},
+      assigns: %{},
       body_params: %{
         "AccountSid" => "AC580a2a2f18195ba92095bd3c23416477",
         "ApiVersion" => "2010-04-01",
@@ -113,7 +113,7 @@ defmodule TwilioSignaturePlugTest do
         {"cache-control", "max-age=0, private, must-revalidate"},
         {"x-request-id", "FqT04sZz5fU8hU8AABLF"}
       ],
-      scheme: :http,
+      scheme: :https,
       script_name: [],
       state: :unset,
       status: nil
@@ -253,5 +253,17 @@ defmodule TwilioSignaturePlugTest do
 
     assert conn.status == 400
     assert conn.halted
+  end
+
+  test "HTTP and HTTPS support", context do
+    conn =
+      %{
+        context[:conn]
+        | scheme: :http,
+          req_headers: [{"x-twilio-signature", "ovfJxXZHi0qLZWf0o5Q7cU13SUo="}]
+      }
+      |> TwilioSignaturePlug.call(TestTwilioSignatureErrorHandler)
+
+    refute conn.halted
   end
 end
