@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  repository_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    env:
+      MIX_ENV: test
+      DATABASE_URL: postgres://postgres:postgres@postgres/event_store_test
+    strategy:
+      fail-fast: true
+      matrix:
+        adapter: [InMemory, Postgres]
+        elixir: [1.12]
+        otp: [22.x, 23.x, 24.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+      - run: mix deps.get --only test
+      - run: mix format --check-formatted
+      - run: mix do deps.get, deps.unlock --check-unused, deps.compile
+      - run: mix do ecto.create, ecto.migrate
+      - run: mix compile --warnings-as-errors
+      - run: mix do compile --force, test
+        env:
+          EVENT_STORE_ADAPTER: Elixir.EventStore.Adapters.${{matrix.adapter}}
