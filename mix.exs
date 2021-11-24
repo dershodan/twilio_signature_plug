@@ -7,7 +7,7 @@ defmodule TwilioSignaturePlug.MixProject do
   def project do
     [
       app: :twilio_signature_plug,
-      version: "0.1.4",
+      version: "0.1.5",
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       description: description(),
@@ -28,8 +28,6 @@ defmodule TwilioSignaturePlug.MixProject do
     [
       {:plug_cowboy, "~> 2.0"},
       {:ex_doc, "~> 0.24", only: :dev, runtime: false}
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]
   end
 

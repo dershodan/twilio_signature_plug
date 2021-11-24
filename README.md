@@ -12,7 +12,7 @@ add twilio_signature_plug to your mix.exs deps
 defp deps do
   [
     ...
-    {:twilio_signature_plug, "~> 0.1.4"},
+    {:twilio_signature_plug, "~> 0.1.5"},
     ...
   ]
 end
