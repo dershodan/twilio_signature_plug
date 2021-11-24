@@ -83,15 +83,17 @@ defmodule TwilioSignaturePlug do
 
   defp generate_uri(conn) do
     # generates the original URI including GET parameters and scheme
-    base_uri = "https://#{conn.host}#{conn.request_path}"
+    base_uri = "#{conn.scheme}://#{conn.host}#{conn.request_path}"
 
     case conn.query_string do
       "" ->
         # if the query string is empty, just return the base_uri
         base_uri
+
       nil ->
         # if the query string is empty, just return the base_uri
         base_uri
+
       _ ->
         # otherwise add the query string
         "#{base_uri}?#{conn.query_string}"
