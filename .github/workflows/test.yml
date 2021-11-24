@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  repository_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
+    strategy:
+      fail-fast: true
+      matrix:
+        elixir: [1.12]
+        otp: [22.x, 23.x, 24.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+      - run: mix deps.get --only test
+      - run: mix format --check-formatted
+      - run: mix do deps.get, deps.unlock --check-unused, deps.compile
+      - run: mix compile --warnings-as-errors
+      - run: mix do compile --force, test
