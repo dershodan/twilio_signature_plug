@@ -72,7 +72,7 @@ defmodule TwilioSignaturePlug do
             :mismatch
         end
 
-      {:error, _reason} ->
+      {:error, :not_found} ->
         Logger.debug(
           "Twilio signature missing in conn.req_headers (#{__MODULE__}) - was this request really from Twilio?"
         )
@@ -83,7 +83,7 @@ defmodule TwilioSignaturePlug do
 
   defp generate_uri(conn) do
     # generates the original URI including GET parameters and scheme
-    base_uri = "#{conn.scheme}://#{conn.host}#{conn.request_path}"
+    base_uri = "#{find_conn_scheme(conn)}://#{conn.host}#{conn.request_path}"
 
     case conn.query_string do
       "" ->
@@ -114,16 +114,27 @@ defmodule TwilioSignaturePlug do
     end
   end
 
-  defp find_twilio_signature(headers) do
+  defp find_header(headers, name) do
     case headers do
-      [{"x-twilio-signature", signature} | _] ->
+      [{^name, signature} | _] ->
         {:ok, signature}
 
       [_ | t] ->
-        find_twilio_signature(t)
+        find_header(t, name)
 
       [] ->
-        {:error, "Twilio Signature not found!"}
+        {:error, :not_found}
+    end
+  end
+
+  defp find_twilio_signature(headers) do
+    find_header(headers, "x-twilio-signature")
+  end
+
+  defp find_conn_scheme(conn) do
+    case find_header(conn.req_headers, "x-forwarded-proto") do
+      {:ok, proto} -> proto
+      {:error, :not_found} -> "#{conn.scheme}"
     end
   end
 end

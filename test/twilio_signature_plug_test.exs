@@ -113,7 +113,7 @@ defmodule TwilioSignaturePlugTest do
         {"cache-control", "max-age=0, private, must-revalidate"},
         {"x-request-id", "FqT04sZz5fU8hU8AABLF"}
       ],
-      scheme: :https,
+      scheme: :http,
       script_name: [],
       state: :unset,
       status: nil
