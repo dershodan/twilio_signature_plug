@@ -7,7 +7,7 @@ defmodule TwilioSignaturePlug.MixProject do
   def project do
     [
       app: :twilio_signature_plug,
-      version: "0.1.5",
+      version: "0.1.6",
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       description: description(),
